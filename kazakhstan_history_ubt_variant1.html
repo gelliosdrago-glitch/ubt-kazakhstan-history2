@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07111f">
+<title>ҰБТ — Қазақстан тарихы | 1-нұсқа</title>
+<style>
+:root{--bg:#07111f;--panel:#101d30;--panel2:#14243a;--text:#edf4ff;--muted:#9fb0c8;--line:#263b56;--accent:#42d6b3;--accent2:#4d8dff;--good:#37d69a;--bad:#ff6b7d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#15304b 0,transparent 42%),radial-gradient(ellipse at 100% 20%,#18354a 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.wrap{width:min(760px,100%);margin:auto;padding:22px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#061321;font-weight:900}.brand b{display:block;font-size:15px}.brand small{color:var(--muted)}.tag{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px}
+.hero{padding:26px 24px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,rgba(66,214,179,.12),rgba(77,141,255,.10)),var(--panel);box-shadow:0 20px 60px #0003;margin-bottom:18px}.eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:11px}.hero h1{font-size:clamp(26px,5vw,38px);line-height:1.12;margin:10px 0}.hero p{color:var(--muted);margin:0;line-height:1.6}.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.stat{background:#07152588;border:1px solid var(--line);padding:9px 12px;border-radius:12px;font-size:12px;color:#c6d5e9}
+.card{background:rgba(16,29,48,.94);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 18px 55px #0003}.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:700}.track{height:7px;background:#26384f;border-radius:99px;overflow:hidden;margin:13px 0 22px}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}.q{font-size:clamp(18px,3.5vw,22px);line-height:1.45;margin:0 0 20px}.answers{display:grid;gap:11px}.answer{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:14px;padding:14px;text-align:left;display:flex;gap:12px;align-items:center;font-size:15px;cursor:pointer;transition:.18s}.answer:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px)}.letter{flex:0 0 30px;height:30px;border-radius:9px;background:#263c55;display:grid;place-items:center;font-weight:800;color:#c8d8eb}.answer.correct{border-color:var(--good);background:#123b36}.answer.wrong{border-color:var(--bad);background:#482632}.answer:disabled{cursor:default}.feedback{margin-top:17px;border-radius:14px;padding:14px;line-height:1.55;font-size:14px}.feedback.good{background:#103a32;border:1px solid #267d68}.feedback.bad{background:#40232e;border:1px solid #934255}.actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px}.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:pointer;font-size:14px}.primary{background:linear-gradient(100deg,var(--accent),#68b9ff);color:#061321}.secondary{background:#20344d;color:var(--text);border:1px solid var(--line)}.btn:disabled{opacity:.4;cursor:not-allowed}.result{text-align:center}.score{font-size:54px;font-weight:900;color:var(--accent);margin:10px}.sub{color:var(--muted)}.review{margin-top:18px;text-align:left;display:grid;gap:12px}.review-item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}.review-item b{display:block;margin-bottom:8px}.review-item p{font-size:13px;line-height:1.5;color:var(--muted);margin:5px 0}.hidden{display:none}.foot{text-align:center;color:#7588a3;font-size:12px;margin-top:20px}
+@media(max-width:520px){.wrap{padding:15px 12px 32px}.hero{padding:22px 18px}.card{padding:17px}.answer{font-size:14px;padding:12px}.actions .btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand"><div class="logo">ҰБТ</div><div><b>Қазақстан тарихы</b><small>Дайындық платформасы</small></div></div><div class="tag">1-нұсқа · 20 сұрақ</div></header>
+<section class="hero"><div class="eyebrow">Ұлттық бірыңғай тестілеу</div><h1>Біліміңді тексер.</h1><p>Қазақстан тарихы бойынша 20 сұрақ. Әр сұрақтан кейін жауаптың дұрыстығы мен қысқаша түсіндірмесі көрсетіледі.</p><div class="stats"><span class="stat">◈ 20 тапсырма</span><span class="stat">◷ Бір дұрыс жауап</span><span class="stat">✓ Соңында нәтиже</span></div></section>
+<main id="quiz" class="card"></main><div class="foot">ҰБТ Дайындық · Қазақстан тарихы</div>
+</div>
+<script>
+const data = [
+["Адамзат тарихындағы ең ұзақ созылған тас дәуірі кезеңі:",["Палеолит","Мезолит","Неолит","Энеолит"],0,"Палеолит — тас дәуірінің ең ұзақ кезеңі."],
+["Қазақстан аймағындағы ең көне палеолиттік тас құралдары қай жерден табылды?",["Қаратау жотасы (Шақпақата, Арыстанды)","Алтай таулары","Іле өзені бойы","Сарыарқа"],0,"Оңтүстік Қазақстандағы Қаратау өңірінен көне тас құралдары табылған."],
+["Ежелгі адамдардың тұңғыш пайдаланған еңбек құралы:",["Шаппер (шапқы)","Микролит","Сүйек ине","Қола балта"],0,"Ерте палеолитте адамдар қарапайым шапқы тәрізді тас құралдарды қолданды."],
+["Орта тас дәуіріне (мезолит) тән басты өнертабыс:",["Садақ пен жебе","Қола қорыту","Қыш ыдыстар жасау","Тесілген балта"],0,"Мезолиттің маңызды жаңалықтарының бірі — садақ пен жебенің пайда болуы."],
+["Мезолит дәуірінде пайда болған өте майда тас құралдар қалай аталады?",["Микролиттер","Макролиттер","Нуклеустар","Рубилолар"],0,"Микролиттер — ұсақ өлшемді тас құралдар."],
+["«Неолит төңкерісі» дегеніміз не?",["Табиғат өнімдерін иемденуден өндіруші шаруашылыққа өту","Металл өңдеуді үйрену","Үңгірлерді тастап кету","Алғашқы мемлекеттердің құрылуы"],0,"Адамдар аңшылық пен терімшіліктен егіншілік пен мал шаруашылығына өте бастады."],
+["Солтүстік Қазақстандағы жылқы алғаш қолға үйретілген энеолиттік тұрақ:",["Ботай тұрағы","Сексеуіл","Шебір","Әкеспе"],0,"Ботай — энеолит дәуірінің белгілі қонысы, жылқыны қолға үйрету тарихымен байланысты."],
+["Ботай мәдениетін зерттеген белгілі қазақстандық археолог:",["Виктор Зайберт","Әлкей Марғұлан","Карл Акишев","Кемел Ақышев"],0,"Ботай қонысын археолог Виктор Зайберт зерттеген."],
+["Тас дәуіріндегі адамдардың алғашқы әлеуметтік ұйымы:",["Алғашқы адамдар тобыры","Рулық қауым","Тайпалық одақ","Мемлекет"],0,"Алғашқы адамдар бірлесіп тіршілік етіп, топ болып өмір сүрді."],
+["Неолит дәуірінің басты технологиялық жаңалығы:",["Қыш ыдыстар жасау","Теңге соғу","Арба ойлап табу","Үтік жасау"],0,"Неолитте қыш ыдыстар жасау кең тарала бастады."],
+["Палеолит дәуіріндегі адамдардың аңдарға табыну сенімі:",["Тотемизм","Анимизм","Фетишизм","Шаманизм"],0,"Тотемизм — ру мен белгілі бір жануардың немесе өсімдіктің арасында туыстық байланыс бар деп сену."],
+["Заттардың жандылығына, рухтарға сену қалай аталады?",["Анимизм","Тотемизм","Магия","Фетишизм"],0,"Анимизм — табиғат құбылыстары мен заттардың жаны бар деген сенім."],
+["Тасқа немесе жартастарға қашап салынған суреттер қалай аталады?",["Петроглифтер","Стеллалар","Балбал тастар","Мазарлар"],0,"Петроглифтер — тас бетіне қашап салынған бейнелер."],
+["Орталық Қазақстандағы неолиттік тұрақ:",["Қарағанды","Зеленая Балка","Мұғалжар","Семізбұғы"],1,"Берілген нұсқада дұрыс жауап ретінде Зеленая Балка көрсетілген."],
+["Энеолит сөзінің мағынасы қандай?",["Мезгілсіз мыс-тас дәуірі","Мыс-тас дәуірі","Жаңа тас дәуірі","Ескі тас дәуірі"],1,"Энеолит — мыс-тас дәуірі."],
+["Алғашқы адамдар өңдеуді меңгерген ең алғашқы металл:",["Алтын","Мыс","Қола","Темір"],1,"Мыс — адам игерген алғашқы металдардың бірі."],
+["Шығыс Қазақстандағы палеолиттік тұрақтардың бірі:",["Қозыбай","Тамғалы","Шілікті","Бесшатыр"],0,"Қозыбай тұрағы Шығыс Қазақстандағы палеолит ескерткіштерінің қатарына жатады."],
+["Аналық рулық қауым (матриархат) қай кезеңде қалыптасты?",["Кейінгі палеолитте","Энеолитте","Қола дәуірінде","Темір дәуірінде"],0,"Кейінгі палеолитте рулық қауым қалыптасып, аналық ру басым болды деген түсінік беріледі."],
+["Аталық рулық қауымға (патриархат) өту қай дәуірде басталды?",["Қола дәуірінде","Палеолитте","Мезолитте","Неолитте"],0,"Қола дәуірінде мал шаруашылығы мен металл өңдеудің дамуына байланысты патриархат орнықты."],
+["Адамдар от жағуды қай кезеңде үйренді?",["Орта палеолитте (мустье кезеңінде)","Неолитте","Энеолитте","Мезолитте"],0,"Мустье кезеңінде отты пайдалану кеңінен меңгерілді."]
+];
+let qs=[],index=0,answers=[];
+const el=document.getElementById('quiz');
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function start(){qs=data.map(q=>({q:q[0],a:shuffle(q[1].map((v,i)=>({v,ok:i===q[2]}))),why:q[3]}));index=0;answers=[];render()}
+function choose(i){if(answers[index]!==undefined)return;answers[index]={i,ok:qs[index].a[i].ok};render()}
+function next(){if(index<qs.length-1){index++;render()}else result()}
+function render(){let q=qs[index],ans=answers[index],pct=(index/qs.length)*100;
+el.innerHTML=`<div class="meta"><span>СҰРАҚ ${index+1} / ${qs.length}</span><span>${answers.filter(x=>x?.ok).length} дұрыс</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div><h2 class="q">${q.q}</h2><div class="answers">${q.a.map((a,i)=>`<button class="answer ${ans!==undefined&&a.ok?'correct':ans!==undefined&&ans.i===i?'wrong':''}" ${ans!==undefined?'disabled':''} onclick="choose(${i})"><span class="letter">${'ABCD'[i]}</span><span>${a.v}</span><span style="margin-left:auto">${ans!==undefined&&a.ok?'✓':ans!==undefined&&ans.i===i?'✕':''}</span></button>`).join('')}</div>${ans!==undefined?`<div class="feedback ${ans.ok?'good':'bad'}"><b>${ans.ok?'Дұрыс жауап!':'Қате жауап.'}</b><br>${q.why}</div>`:''}<div class="actions"><button class="btn secondary" onclick="start()">Қайта бастау</button><button class="btn primary" ${ans===undefined?'disabled':''} onclick="next()">${index===qs.length-1?'Нәтижені көру':'Келесі сұрақ →'}</button></div>`}
+function result(){let score=answers.filter(a=>a?.ok).length,wrong=qs.map((q,i)=>({q,a:answers[i]})).filter(x=>!x.a.ok);
+el.innerHTML=`<div class="result"><div class="eyebrow">ТЕСТ АЯҚТАЛДЫ</div><h2>Нәтижең</h2><div class="score">${score} / 20</div><p class="sub">${Math.round(score/20*100)}% дұрыс жауап</p><div class="track"><div class="fill" style="width:${score/20*100}%"></div></div><button class="btn primary" onclick="start()">↻ Қайта тапсыру</button></div>${wrong.length?`<div class="review"><h3>Қателерді талдау · ${wrong.length}</h3>${wrong.map((x,i)=>`<div class="review-item"><b>${i+1}. ${x.q.q}</b><p>Сенің жауабың: ${x.q.a[x.a.i].v}</p><p>Дұрыс жауап: ${x.q.a.find(a=>a.ok).v}</p><p>${x.q.why}</p></div>`).join('')}</div>`:`<div class="feedback good">Керемет! Барлық сұраққа дұрыс жауап бердің.</div>`}`}
+start();
+</script>
+</body></html>
