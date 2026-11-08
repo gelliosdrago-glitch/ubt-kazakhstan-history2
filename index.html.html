@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="kk" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Қазақстан тарихы: ҰБТ Интерактивті 3D Тесттер</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --flag-blue: #00A3E0;
+  --flag-blue-dark: #0077B6;
+  --flag-blue-glow: rgba(0, 163, 224, 0.4);
+  --sun-gold: #FDB913;
+  --sun-gold-light: #FFE066;
+  --sun-gold-dark: #D49000;
+  --sun-glow: rgba(253, 185, 19, 0.4);
+  
+  --bg-main: #061325;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #0F2A4A 0%, #061325 70%);
+  --card-bg: rgba(13, 29, 53, 0.75);
+  --card-hover: rgba(20, 42, 75, 0.85);
+  --card-border: rgba(0, 163, 224, 0.25);
+  --card-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 163, 224, 0.15);
+  
+  --text-main: #F0F7FF;
+  --text-muted: #8AA4C4;
+  --text-inverse: #061325;
+  
+  --correct-bg: rgba(16, 185, 129, 0.2);
+  --correct-border: #10B981;
+  --correct-text: #34D399;
+  
+  --wrong-bg: rgba(239, 68, 68, 0.2);
+  --wrong-border: #EF4444;
+  --wrong-text: #F87171;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --ease-3d: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+:root[data-theme="light"] {
+  --bg-main: #EBF5FB;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #D0EAFA 0%, #EBF5FB 70%);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-hover: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(0, 140, 200, 0.2);
+  --card-shadow: 0 12px 30px rgba(0, 100, 160, 0.12), 0 4px 8px rgba(0, 0, 0, 0.04);
+  
+  --text-main: #0A2239;
+  --text-muted: #56728D;
+  --text-inverse: #FFFFFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-family: 'Plus Jakarta Sans', 'Montserrat', sans-serif; }
+body {
+  background: var(--bg-main);
+  background-image: var(--bg-gradient);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; border: none; outline: none; }
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--flag-blue-dark); border-radius: 5px; }
+
+.ornament-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 350px;
+  background-image: url('data:image/svg+xml;utf8,<svg width="100" height="40" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg"><path d="M0,20 Q25,0 50,20 Q75,40 100,20" fill="none" stroke="rgba(0,163,224,0.06)" stroke-width="2"/><circle cx="50" cy="20" r="4" fill="rgba(253,185,19,0.08)"/></svg>');
+  pointer-events: none;
+  z-index: 0;
+}
+
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  background: rgba(6, 19, 37, 0.7);
+  border-bottom: 1px solid rgba(0, 163, 224, 0.2);
+  transition: background 0.3s;
+}
+:root[data-theme="light"] .navbar {
+  background: rgba(235, 245, 251, 0.8);
+}
+.nav-wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0;
+}
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--sun-gold) 0%, #FFF 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(253, 185, 19, 0.3);
+}
+.brand-sun {
+  width: 36px; height: 36px;
+  filter: drop-shadow(0 0 8px var(--sun-gold));
+  animation: spinSun 30s linear infinite;
+}
+@keyframes spinSun { to { transform: rotate(360deg); } }
+
+.nav-actions { display: flex; gap: 10px; align-items: center; }
+.btn-nav {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  padding: 8px 16px; border-radius: 99px;
+  font-size: 0.88rem; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s var(--ease-3d);
+}
+.btn-nav:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: var(--sun-gold);
+  color: var(--sun-gold);
+  box-shadow: 0 6px 16px var(--sun-glow);
+}
+.btn-nav:active { transform: translateY(1px); }
+
+.hero {
+  position: relative; padding: 45px 0 35px; text-align: center; overflow: hidden;
+}
+.hero-badge-wrap {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0, 163, 224, 0.15);
+  border: 1px solid rgba(0, 163, 224, 0.4);
+  padding: 6px 18px; border-radius: 99px;
+  color: var(--sun-gold); font-weight: 800; font-size: 0.85rem;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  box-shadow: 0 0 20px var(--flag-blue-glow);
+  margin-bottom: 20px;
+  animation: float3d 4s ease-in-out infinite;
+}
+@keyframes float3d {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+.hero-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 16px; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #FFFFFF 20%, var(--flag-blue) 60%, var(--sun-gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 12px rgba(0, 163, 224, 0.3));
+}
+:root[data-theme="light"] .hero-title {
+  background: linear-gradient(135deg, var(--flag-blue-dark) 20%, #00B4D8 60%, var(--sun-gold-dark) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  max-width: 680px; margin: 0 auto 30px;
+  color: var(--text-muted); font-size: 1.05rem; font-weight: 500;
+}
+
+.hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px; }
+
+.btn-3d {
+  position: relative;
+  background: linear-gradient(135deg, var(--sun-gold) 0%, var(--sun-gold-dark) 100%);
+  color: var(--text-inverse);
+  font-weight: 800; font-size: 1rem;
+  padding: 14px 28px; border-radius: var(--radius-md);
+  box-shadow: 0 6px 0 #9E6B00, 0 12px 24px var(--sun-glow);
+  transition: all 0.2s var(--ease-3d);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-3d:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 0 #9E6B00, 0 16px 30px var(--sun-glow);
+}
+.btn-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #9E6B00, 0 4px 10px var(--sun-glow);
+}
+
+.btn-3d-secondary {
+  background: linear-gradient(135deg, var(--flag-blue) 0%, var(--flag-blue-dark) 100%);
+  color: #FFF;
+  box-shadow: 0 6px 0 #004D7A, 0 12px 24px var(--flag-blue-glow);
+}
+.btn-3d-secondary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 0 #004D7A, 0 16px 30px var(--flag-blue-glow);
+}
+.btn-3d-secondary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #004D7A;
+}
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin-bottom: 35px;
+}
+.stat-card-3d {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: transform 0.3s var(--ease-3d), box-shadow 0.3s;
+}
+.stat-card-3d:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 163, 224, 0.25);
+}
+.stat-info .lbl { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-info .val { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; color: var(--sun-gold); line-height: 1.1; margin-top: 4px; }
+.stat-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: rgba(0, 163, 224, 0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: var(--flag-blue);
+}
+
+.sec-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+}
+.sec-title {
+  font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 800;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-title::before {
+  content: ''; display: inline-block; width: 6px; height: 24px;
+  background: linear-gradient(to bottom, var(--sun-gold), var(--flag-blue));
+  border-radius: 3px;
+}
+
+.tabs-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding: 4px;
+  max-width: 100%; scrollbar-width: none;
+}
+.tabs-scroll::-webkit-scrollbar { display: none; }
+.tab-btn-3d {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  padding: 8px 18px; border-radius: 99px;
+  font-weight: 700; font-size: 0.88rem; white-space: nowrap;
+  transition: all 0.25s var(--ease-3d);
+}
+.tab-btn-3d.active {
+  background: linear-gradient(135deg, var(--flag-blue) 0%, var(--flag-blue-dark) 100%);
+  color: #FFF; border-color: var(--flag-blue);
+  box-shadow: 0 4px 15px var(--flag-blue-glow);
+}
+
+.variants-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px; list-style: none; margin-bottom: 50px;
+}
+
+.variant-card-3d {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(14px);
+  position: relative; overflow: hidden;
+  transition: all 0.35s var(--ease-3d);
+  cursor: pointer;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.variant-card-3d::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--flag-blue) 0%, var(--sun-gold) 100%);
+  opacity: 0.7; transition: opacity 0.3s;
+}
+.variant-card-3d:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(253, 185, 19, 0.5);
+  box-shadow: 0 18px 40px rgba(0, 163, 224, 0.25), 0 0 25px rgba(253, 185, 19, 0.15);
+}
+.variant-card-3d:hover::before { opacity: 1; }
+
+.card-top { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+.badge-no-3d {
+  width: 46px; height: 46px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--sun-gold) 0%, var(--sun-gold-dark) 100%);
+  color: var(--text-inverse); font-family: 'Montserrat', sans-serif;
+  font-weight: 900; font-size: 1.25rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px var(--sun-glow); flex-shrink: 0;
+}
+.card-title-wrap { flex: 1; }
+.card-topic {
+  font-weight: 700; font-size: 1.05rem; line-height: 1.35;
+  color: var(--text-main); margin-bottom: 4px;
+}
+.card-meta { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+
+.card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.progress-bar-wrap {
+  flex: 1; height: 8px; background: rgba(0, 163, 224, 0.15);
+  border-radius: 99px; overflow: hidden; margin-right: 14px;
+}
+.progress-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--flag-blue), var(--sun-gold));
+  border-radius: 99px; width: 0%; transition: width 0.8s var(--ease-3d);
+}
+.badge-status {
+  font-size: 0.82rem; font-weight: 800; padding: 4px 12px; border-radius: 99px;
+  background: rgba(0, 163, 224, 0.12); color: var(--flag-blue);
+  border: 1px solid rgba(0, 163, 224, 0.3);
+}
+.badge-status.passed {
+  background: rgba(16, 185, 129, 0.15); color: #10B981;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.quiz-container { max-width: 800px; margin: 0 auto; padding-top: 20px; }
+
+.quiz-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+}
+.quiz-progress-track {
+  height: 10px; background: rgba(0, 163, 224, 0.15);
+  border-radius: 99px; overflow: hidden; margin-bottom: 24px;
+  border: 1px solid rgba(0, 163, 224, 0.2);
+}
+.quiz-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--flag-blue) 0%, var(--sun-gold) 100%);
+  width: 0%; transition: width 0.4s ease;
+}
+
+.streak-badge {
+  background: linear-gradient(135deg, #FF6B00 0%, #FFB800 100%);
+  color: #FFF; font-weight: 800; font-size: 0.85rem; padding: 4px 14px;
+  border-radius: 99px; box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+  display: inline-flex; align-items: center; gap: 6px;
+  animation: popStreak 0.4s var(--ease-3d);
+}
+@keyframes popStreak {
+  0% { transform: scale(0.7); }
+  50% { transform: scale(1.2) rotate(-3deg); }
+  100% { transform: scale(1); }
+}
+
+.qcard-3d {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(16px);
+  position: relative; animation: slideInUp 0.4s var(--ease-3d);
+}
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.question-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  font-weight: 800; line-height: 1.4;
+  color: var(--text-main); margin-bottom: 28px;
+}
+
+.options-grid { display: grid; gap: 14px; margin-bottom: 24px; }
+
+.option-btn-3d {
+  position: relative;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-weight: 600; font-size: 1rem;
+  color: var(--text-main); text-align: left;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 4px 0 rgba(0, 163, 224, 0.2);
+  transition: all 0.2s var(--ease-3d);
+  width: 100%;
+}
+.option-btn-3d:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: var(--sun-gold);
+  background: var(--card-hover);
+  box-shadow: 0 6px 0 var(--sun-gold-dark), 0 8px 20px rgba(253, 185, 19, 0.15);
+}
+.option-btn-3d:not(:disabled):active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--sun-gold-dark);
+}
+
+.opt-letter {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(0, 163, 224, 0.15); border: 1px solid rgba(0, 163, 224, 0.3);
+  color: var(--flag-blue); font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: 1.05rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s;
+}
+
+.option-btn-3d.correct {
+  background: var(--correct-bg) !important;
+  border-color: var(--correct-border) !important;
+  color: var(--correct-text) !important;
+  box-shadow: 0 4px 0 var(--correct-border) !important;
+}
+.option-btn-3d.correct .opt-letter {
+  background: var(--correct-border); color: #FFF;
+}
+
+.option-btn-3d.wrong {
+  background: var(--wrong-bg) !important;
+  border-color: var(--wrong-border) !important;
+  color: var(--wrong-text) !important;
+  box-shadow: 0 4px 0 var(--wrong-border) !important;
+  animation: shake 0.4s ease;
+}
+.option-btn-3d.wrong .opt-letter {
+  background: var(--wrong-border); color: #FFF;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.option-btn-3d.dimmed {
+  opacity: 0.45; box-shadow: none;
+}
+
+.exp-note-3d {
+  background: linear-gradient(135deg, rgba(253, 185, 19, 0.12) 0%, rgba(0, 163, 224, 0.1) 100%);
+  border: 1px solid var(--sun-gold);
+  border-radius: var(--radius-md);
+  padding: 16px 20px; margin-top: 20px;
+  animation: fadeIn 0.3s ease;
+}
+.exp-note-3d.bad {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(0, 163, 224, 0.08) 100%);
+  border-color: var(--wrong-border);
+}
+.exp-note-3d strong {
+  display: block; font-family: 'Montserrat', sans-serif;
+  font-weight: 800; color: var(--sun-gold); margin-bottom: 4px;
+}
+.exp-note-3d.bad strong { color: var(--wrong-text); }
+
+.next-action { display: flex; justify-content: flex-end; margin-top: 24px; }
+
+.result-card-3d {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px; text-align: center;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(16px);
+  margin-bottom: 35px;
+}
+.score-circle-3d {
+  width: 140px; height: 140px; margin: 0 auto 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 163, 224, 0.2) 0%, transparent 70%);
+  border: 4px solid var(--sun-gold);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 0 30px var(--sun-glow);
+}
+.score-num { font-family: 'Montserrat', sans-serif; font-size: 3rem; font-weight: 900; color: var(--sun-gold); line-height: 1; }
+.score-total { font-size: 0.9rem; color: var(--text-muted); font-weight: 700; }
+
+.verdict-text { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 24px; }
+
+.missed-list { text-align: left; margin-top: 35px; }
+.missed-item-3d {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px; margin-bottom: 14px;
+}
+.missed-q { font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
+.ans-pill {
+  display: inline-block; padding: 4px 12px; border-radius: 6px;
+  font-size: 0.85rem; font-weight: 700; margin-right: 8px; margin-bottom: 6px;
+}
+.ans-pill.mine { background: var(--wrong-bg); color: var(--wrong-text); border: 1px solid var(--wrong-border); }
+.ans-pill.correct { background: var(--correct-bg); color: var(--correct-text); border: 1px solid var(--correct-border); }
+.missed-exp { font-size: 0.88rem; color: var(--text-muted); margin-top: 6px; }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(6, 19, 37, 0.8); backdrop-filter: blur(10px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 80px 20px 20px; animation: fadeIn 0.2s ease;
+}
+.modal-overlay[hidden] { display: none; }
+.modal-box-3d {
+  background: var(--bg-main);
+  border: 1px solid var(--flag-blue);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 680px; max-height: 80vh;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px var(--flag-blue-glow);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-head {
+  display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+  border-bottom: 1px solid var(--card-border);
+}
+.modal-head input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text-main); font-size: 1.1rem; font-weight: 600;
+}
+.modal-body { overflow-y: auto; padding: 20px; flex: 1; }
+
+.search-hit {
+  padding: 14px 0; border-bottom: 1px dashed var(--card-border);
+}
+.search-hit:last-child { border-bottom: none; }
+.hit-q { font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+.hit-a { color: var(--sun-gold); font-size: 0.9rem; font-weight: 700; }
+.hit-e { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+
+.confirm-box {
+  background: var(--bg-main); border: 1px solid var(--sun-gold);
+  border-radius: var(--radius-lg); padding: 30px; text-align: center;
+  max-width: 440px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+  margin-top: auto; margin-bottom: auto;
+}
+
+footer {
+  text-align: center; padding: 35px 0; color: var(--text-muted);
+  font-size: 0.88rem; font-weight: 600; border-top: 1px solid var(--card-border);
+  margin-top: 40px;
+}
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 300; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@media (max-width: 640px) {
+  .hero-title { font-size: 2rem; }
+  .qcard-3d { padding: 20px; }
+  .stat-card-3d { padding: 14px 18px; }
+}
+
+.hero-sun{width:96px;height:96px;margin:0 auto 12px;display:block;filter:drop-shadow(0 0 16px var(--sun-gold));animation:spinSun 40s linear infinite}
+.xp-card{max-width:480px;margin:0 auto;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-md);padding:12px 16px;text-align:left;backdrop-filter:blur(12px)}
+.xp-row{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;flex-wrap:wrap}
+.xp-track,.timer-track{height:10px;border-radius:99px;background:rgba(138,164,196,.2);overflow:hidden;margin-top:8px}
+.xp-fill,.timer-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--flag-blue),var(--sun-gold));transition:width .5s}
+.timer-track{height:12px;margin:12px 0}.timer-fill{transition:width .1s linear}
+.modes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:35px}
+.mode-card{display:flex;gap:14px;align-items:center;text-align:left;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--card-shadow);transition:all .25s var(--ease-3d)}
+.mode-card:hover:not(:disabled){transform:translateY(-4px);border-color:var(--sun-gold)}
+.mode-card:disabled{opacity:.5;cursor:not-allowed}
+.mode-ic{font-size:2.1rem}.mode-t{font-weight:800}.mode-d{font-size:.82rem;color:var(--text-muted)}.mode-tag{font-size:.78rem;font-weight:800;color:var(--sun-gold);margin-top:2px}
+.blitz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.timer-num{font-family:'Montserrat';font-weight:900;font-size:1.6rem;color:var(--sun-gold)}
+.lifelines{display:flex;gap:10px;margin-top:16px}.lifelines .btn-nav:disabled{opacity:.4;cursor:not-allowed}
+.lb{max-width:420px;margin:0 auto 20px}.lb-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--card-border);font-size:.9rem}
+.flash{cursor:pointer;text-align:center;min-height:240px;display:flex;flex-direction:column;justify-content:center}.flash-lbl{font-weight:800;color:var(--flag-blue);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="ornament-bg"></div>
+
+<!-- Top Navigation -->
+<nav class="navbar">
+  <div class="container nav-wrap">
+    <button class="brand" onclick="goHome()">
+      <svg class="brand-sun" viewBox="0 0 50 50">
+        <circle cx="25" cy="25" r="10" fill="#FDB913" stroke="#FFF" stroke-width="2"/>
+        <g stroke="#FDB913" stroke-width="3" stroke-linecap="round">
+          <line x1="25" y1="3" x2="25" y2="10"/><line x1="25" y1="40" x2="25" y2="47"/>
+          <line x1="3" y1="25" x2="10" y2="25"/><line x1="40" y1="25" x2="47" y2="25"/>
+          <line x1="9" y1="9" x2="14" y2="14"/><line x1="36" y1="36" x2="41" y2="41"/>
+          <line x1="41" y1="9" x2="36" y2="14"/><line x1="14" y1="36" x2="9" y2="41"/>
+        </g>
+      </svg>
+      Қазақстан тарихы ҰБТ
+    </button>
+    <div class="nav-actions">
+      <button class="btn-nav" onclick="toggleSearchModal()">
+        🔍 Іздеу
+      </button>
+      <button class="btn-nav" id="sound-btn" onclick="toggleSound()">
+        🔊 Дыбыс: Қосулы
+      </button>
+      <button class="btn-nav" id="theme-btn" onclick="toggleTheme()">
+        🌙 Тема
+      </button>
+      <button class="btn-nav" onclick="openResetModal()">
+        🗑️ Тазалау
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main App Slot -->
+<main class="container" id="app">
+</main>
+
+<footer>
+  <p>🇰🇿 Қазақстан тарихы — ҰБТ-ға дайындық интерактивті 3D онлайн тренажеры</p>
+</footer>
+
+<canvas id="confetti"></canvas>
+
+<!-- Search Modal -->
+<div id="search-modal" class="modal-overlay" hidden onclick="if(event.target===this)toggleSearchModal()">
+  <div class="modal-box-3d" role="dialog" aria-label="Іздеу">
+    <div class="modal-head">
+      <span style="font-size: 1.2rem;">🔍</span>
+      <input type="text" id="search-input" oninput="searchQuestions(this.value)" placeholder="Сұрақ, тұлға, жыл немесе оқиға бойынша іздеу..." autocomplete="off">
+      <button class="btn-nav" onclick="toggleSearchModal()">Жабу</button>
+    </div>
+    <div id="search-results" class="modal-body">
+      <p style="color: var(--text-muted); text-align: center; padding: 20px;">Мысалы: Ботай, Палеолит, Мезолит, Зайберт</p>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Reset Modal -->
+<div id="confirm-modal" class="modal-overlay" hidden onclick="if(event.target===this)closeResetModal()">
+  <div class="confirm-box" role="dialog" aria-label="Растау">
+    <h3 style="font-family:'Montserrat'; font-size:1.3rem; margin-bottom:12px; color:var(--sun-gold);">Нәтижені Тазалау</h3>
+    <p style="color:var(--text-muted); margin-bottom:20px;">Барлық тест нәтижелерін тазалағыңыз келетініне сенімдісіз бе?</p>
+    <div style="display:flex; gap:12px; justify-content:center;">
+      <button class="btn-3d" style="padding:10px 20px;" onclick="confirmResetStats()">Иә, тазалау</button>
+      <button class="btn-nav" style="padding:10px 20px;" onclick="closeResetModal()">Бас тарту</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 1-нұсқадағы 20 сұрақ
+const ALL_VARIANTS = [
+    {
+        "title": "1-Нұсқа: Тас дәуірі және Энеолит (20 Сұрақ)",
+        "questions": [
+            [
+                "Адамзат тарихындағы ең ұзақ созылған тас дәуірі кезеңі:",
+                [
+                    "Палеолит",
+                    "Мезолит",
+                    "Неолит",
+                    "Энеолит"
+                ],
+                0,
+                "Палеолит — б.з.д. 2.6 млн жылдан б.з.д. 12 мыңжылдыққа дейін созылған ең ұзақ дәуір."
+            ],
+            [
+                "Қазақстан аймағындағы ең көне палеолиттік тас құралдары қай жерден табылды?",
+                [
+                    "Қаратау жотасы (Шақпақата, Арыстанды)",
+                    "Алтай таулары (орталық зерттеу алқабында)",
+                    "Іле өзені бойы (шығыс бөктерінде)",
+                    "Сарыарқа (тарихи ескерткіш аймағында)"
+                ],
+                0,
+                "Оңтүстік Қазақстанның Қаратау бөктерінен ең көне тас құралдары (шапперлер) табылды."
+            ],
+            [
+                "Ежелгі адамдардың тұңғыш пайдаланған еңбек құралы:",
+                [
+                    "Шаппер (шапқы)",
+                    "Микролит (ресми мағына)",
+                    "Сүйек ине (дерек бойынша)",
+                    "Қола балта"
+                ],
+                0,
+                "Ерте палеолитте адамдар тасты екі жағынан жарып жасалған шапперлерді қолданған."
+            ],
+            [
+                "Орта тас дәуіріне (Мезолит) тән басты өнертабыс:",
+                [
+                    "Садақ пен жебе",
+                    "Қола қорыту",
+                    "Қыш ыдыстар жасау",
+                    "Тесілген балта (тарихи ұғым)"
+                ],
+                0,
+                "Мезолитте (б.з.д. 12-5 мыңжылдықтар) садақ пен жебе ойлап табылды."
+            ],
+            [
+                "Мезолит дәуірінде пайда болған өте майда тас құралдар қалай аталады?",
+                [
+                    "Микролиттер",
+                    "Макролиттер",
+                    "Нуклеустар",
+                    "Рубилолар"
+                ],
+                0,
+                "Өлшемі 1-2 см болатын ұсақ тас пластиналар микролит деп аталады."
+            ],
+            [
+                "«Неолит төңкерісі» дегеніміз не?",
+                [
+                    "Табиғат сыйын иемденуден өндіруші шаруашылыққа өту",
+                    "Металл өңдеуді үйрену (және өндірістік шаруашылықты дамыту)",
+                    "Үңгірлерді тастап кету (дәстүрлі қоғамдық жүйе)",
+                    "Алғашқы мемлекеттердің құрылуы (дерек бойынша)"
+                ],
+                0,
+                "Неолитте адамдар аңшылық пен терімшіліктен егіншілік пен мал шаруашылығына өтті."
+            ],
+            [
+                "Солтүстік Қазақстандағы жылқы алғаш қолға үйретілген энеолиттік тұрақ:",
+                [
+                    "Ботай тұрағы",
+                    "Сексеуіл",
+                    "Шебір (маңында)",
+                    "Әкеспе (бойында)"
+                ],
+                0,
+                "Б.з.д. IV мыңжылдықтағы Ботай тұрағында әлемде алғаш рет жылқы қолға үйретілді."
+            ],
+            [
+                "Ботай мәдениетін зерттеген белгілі қазақстандық археолог:",
+                [
+                    "Виктор Зайберт",
+                    "Әлкей Марғұлан",
+                    "Карл Акишев",
+                    "Кемел Ақышев (тарихи ұғым)"
+                ],
+                0,
+                "Профессор В. Зайберт Ботай тұрағын көп жылдар бойы зерттеп, жылқы сүйектерін тапты."
+            ],
+            [
+                "Тас дәуіріндегі адамдардың алғашқы әлеуметтік ұйымы:",
+                [
+                    "Алғашқы ұжым (палеолиттік тобыр)",
+                    "Рулық қауым (ресми тарихи тұжырым)",
+                    "Тайпалық одақ (тарихи ұғым)",
+                    "Мемлекет (әлеуметтік даму процесі)"
+                ],
+                0,
+                "Алғашқы адамдар аңдардан қорғану және азық табу үшін тобырмен өмір сүрді."
+            ],
+            [
+                "Неолит дәуірінің басты технологиялық жаңалығы:",
+                [
+                    "Қыш ыдыстар (керамика) жасау",
+                    "Теңге соғу (дәстүрлі қоғамдық жүйе)",
+                    "Араба ойлап табу (ресми мағына)",
+                    "Үтік жасау (дерек бойынша)"
+                ],
+                0,
+                "Сол себепті Неолит дәуірін кейде «қыш ыдыстар ғасыры» деп те атайды."
+            ],
+            [
+                "Шығыс Қазақстандағы палеолиттік тұрақтардың бірі:",
+                [
+                    "Қозыбай",
+                    "Тамғалы",
+                    "Шілікті (ордада)",
+                    "Бесшатыр"
+                ],
+                0,
+                "Қозыбай тұрағы Бухтарма өзенінің бойында орналасқан палеолиттік ескерткіш."
+            ],
+            [
+                "Тас дәуіріндегі бейнелеу өнерінің ескерткіштері жартас суреттері қалай аталады?",
+                [
+                    "Петроглифтер",
+                    "Стеллалар",
+                    "Балбал тастар",
+                    "Мазарлар (маңында)"
+                ],
+                0,
+                "Петроглифтер — тасқа немесе жартасқа қашап салынған суреттер."
+            ],
+            [
+                "Орталық Қазақстандағы неолиттік тұрақ:",
+                [
+                    "Зеленая Балка",
+                    "Қарағанды",
+                    "Мұғалжар",
+                    "Семізбұғы"
+                ],
+                0,
+                "Зеленая Балка — Орталық Қазақстандағы маңызды неолиттік ескерткіш."
+            ],
+            [
+                "Алғашқы адамдар өңдеуді меңгерген ең алғашқы металл:",
+                [
+                    "Мыс",
+                    "Алтын (тарихи ұғым)",
+                    "Қола",
+                    "Темир"
+                ],
+                0,
+                "Мыс табиғатта таза күйінде кездесетіндіктен және жұмсақ болғандықтан алғаш игерілді."
+            ],
+            [
+                "Энеолит сөзінің мағынасы қандай?",
+                [
+                    "Мыс-тас дәуірі",
+                    "Мезгілсіз тас дәуірі",
+                    "Жаңа тас дәуірі (дерек бойынша)",
+                    "Ескі тас дәуірі"
+                ],
+                0,
+                "Энеолит (латынша aeneus — мыс, грекше lithos — тас) мыс пен тас қатар қолданылған кезең."
+            ],
+            [
+                "Палеолит дәуіріндегі адамдардың діни сеніміндегі аңдарға табыну:",
+                [
+                    "Тотемизм",
+                    "Анимизм",
+                    "Фетишизм",
+                    "Шаманизм (тарихи ұғым)"
+                ],
+                0,
+                "Тотемизм — рудың шығу тегін белгілі бір жануармен немесе өсімдікпен байланыстыру."
+            ],
+            [
+                "Заттардың жандылығына, рухтарға сену концепциясы:",
+                [
+                    "Анимизм",
+                    "Тотемизм",
+                    "Магия",
+                    "Фетишизм"
+                ],
+                0,
+                "Анимизм (латынша «anima» — жан) табиғат пен заттардың жаны бар деген сенім."
+            ],
+            [
+                "Аналық рулық қауым (матриархат) қай кезеңде қалыптасты?",
+                [
+                    "Кейінгі палеолитте",
+                    "Энеолитте (тарихи ұғым)",
+                    "Қола дәуірінде",
+                    "Темир дәуірінде"
+                ],
+                0,
+                "Кейінгі палеолитте (Кроманьон адамы тұсында) аналық рулық жүйе қалыптасты."
+            ],
+            [
+                "Аталық рулық қауымға (патриархат) өту қай дәуірде басталды?",
+                [
+                    "Қола дәуірінде",
+                    "Палеолитте",
+                    "Мезолитте (дерек бойынша)",
+                    "Неолитте (жүйе ретінде)"
+                ],
+                0,
+                "Ауыр металл өңдеу және мал бағу ер адамның еңбегін талап еткендіктен қола дәуірінде патриархат орнықты."
+            ],
+            [
+                "Адамдар от жағуды қай кезеңде үйренді?",
+                [
+                    "Орта палеолитте (Мустьер кезеңінде)",
+                    "Неолитте (әлеуметтік даму процесі)",
+                    "Энеолитте (ресми тарихи тұжырым)",
+                    "Мезолитте (салдарынан қоғамдық жүйені қайта қарау)"
+                ],
+                0,
+                "Мустьер кезеңінде (б.з.д. 140-40 мыңжылдық) неандертальдықтар отты өздігінен табуды меңгерді."
+            ]
+        ]
+    }
+];
+
+const STORE_KEY = 'ENT_KAZ_HISTORY_3D_STATS_V1';
+const PER_SET = 10;
+let soundEnabled = true;
+
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playSound(type) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    const now = ctx.currentTime;
+    if (type === 'click') {
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      osc.start(now); osc.stop(now + 0.05);
+    } else if (type === 'correct') {
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.08);
+      osc.frequency.setValueAtTime(783.99, now + 0.16);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (type === 'win') {
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.12);
+      osc.frequency.setValueAtTime(783.99, now + 0.24);
+      osc.frequency.setValueAtTime(1046.50, now + 0.36);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+      osc.start(now); osc.stop(now + 0.6);
+    }
+  } catch (e) {}
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const b = document.getElementById('sound-btn');
+  if (b) b.textContent = soundEnabled ? '🔊 Дыбыс: Қосулы' : '🔇 Дыбыс: Өшірулі';
+}
+
+function readStats() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { return {}; }
+}
+
+function saveStats() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state.stats)); } catch (e) {}
+}
+
+let state = {
+  view: 'home',
+  selectedSet: 0,
+  currentVariantIndex: 0,
+  isExpress: false,
+  questions: [],
+  currentIndex: 0,
+  userAnswers: [],
+  streak: 0,
+  stats: readStats()
+};
+
+function topicOf(title) {
+  const i = title.indexOf(':');
+  const t = i >= 0 ? title.slice(i + 1) : title;
+  return t.replace(/\s*\(\d+-Жинақ\)\s*$/i, '').trim();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  renderApp();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (!document.getElementById('search-modal').hidden) toggleSearchModal();
+    if (!document.getElementById('confirm-modal').hidden) closeResetModal();
+    return;
+  }
+  if (state.view !== 'quiz' || !document.getElementById('search-modal').hidden || !document.getElementById('confirm-modal').hidden) return;
+  const n = parseInt(e.key, 10);
+  const q = state.questions[state.currentIndex];
+  if (q && n >= 1 && n <= q.choices.length) {
+    handleAnswer(n - 1);
+  }
+});
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  const b = document.getElementById('theme-btn');
+  if (b) b.textContent = next === 'dark' ? '🌙 Тема' : '☀️ Тема';
+  try { localStorage.setItem('ent_theme', next); } catch (e) {}
+}
+
+function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem('ent_theme'); } catch (e) {}
+  const isDark = saved ? saved === 'dark' : true;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const b = document.getElementById('theme-btn');
+  if (b) b.textContent = isDark ? '🌙 Тема' : '☀️ Тема';
+}
+
+function openResetModal() {
+  playSound('click');
+  document.getElementById('confirm-modal').hidden = false;
+}
+
+function closeResetModal() {
+  document.getElementById('confirm-modal').hidden = true;
+}
+
+function confirmResetStats() {
+  playSound('click');
+  closeResetModal();
+  state.stats = {};
+  saveStats();
+  renderApp();
+}
+
+function goHome() {
+  if (B) { clearInterval(B.t); clearTimeout(B.nx); }
+  playSound('click');
+  state.view = 'home';
+  renderApp();
+  window.scrollTo(0, 0);
+}
+
+function filterSet(num) {
+  playSound('click');
+  state.selectedSet = num;
+  renderApp();
+}
+
+function shuffleArray(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function startQuiz(variantIndex, isExpress = false) {
+  playSound('click');
+  let selected = [];
+  if (isExpress) {
+    const all = ALL_VARIANTS.map(v => v.questions).flat();
+    selected = shuffleArray(all).slice(0, 20);
+  } else {
+    selected = ALL_VARIANTS[variantIndex].questions;
+  }
+
+  state.questions = selected.map(q => ({
+    id: IDMAP.get(q), questionText: q[0],
+    choices: shuffleArray(q[1].map((c, idx) => ({ text: c, isCorrect: idx === q[2] }))),
+    explanation: q[3]
+  }));
+
+  state.view = 'quiz';
+  state.currentVariantIndex = variantIndex;
+  state.isExpress = isExpress; state.title = ''; state.mode = '';
+  state.currentIndex = 0;
+  state.userAnswers = [];
+  state.streak = 0;
+
+  renderApp();
+  window.scrollTo(0, 0);
+}
+
+function handleAnswer(idx) {
+  if (state.userAnswers[state.currentIndex] !== undefined) return;
+  const q = state.questions[state.currentIndex];
+  const isCorrect = q.choices[idx].isCorrect;
+  rec(q, isCorrect);
+  
+  state.userAnswers[state.currentIndex] = { choiceIndex: idx, isCorrect };
+  if (isCorrect) {
+    state.streak++;
+    playSound('correct');
+    confettiBurst();
+  } else {
+    state.streak = 0;
+    playSound('wrong');
+  }
+
+  renderQuiz(document.getElementById('app'));
+}
+
+function nextQuestion() {
+  playSound('click');
+  if (state.currentIndex < state.questions.length - 1) {
+    state.currentIndex++;
+    renderQuiz(document.getElementById('app'));
+    window.scrollTo(0, 0);
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  const score = state.userAnswers.filter(a => a && a.isCorrect).length;
+  if (!state.isExpress) {
+    const key = `v_${state.currentVariantIndex}`;
+    const prev = state.stats[key] || { attempts: 0, maxScore: 0 };
+    state.stats[key] = {
+      attempts: prev.attempts + 1,
+      maxScore: Math.max(prev.maxScore, score),
+      totalQ: state.questions.length,
+      lastScore: score
+    };
+    saveStats();
+  }
+
+  afterQuiz();
+  if (score / state.questions.length >= 0.75) playSound('win');
+  state.view = 'result';
+  renderApp();
+  window.scrollTo(0, 0);
+}
+
+const XKEY='ENT_KAZ_X_V1';
+let X={};try{X=JSON.parse(localStorage.getItem(XKEY)||'{}')}catch(e){}
+X=Object.assign({xp:0,best:0,top:[],miss:[],ans:0,ok:0,dStreak:0,dLast:''},X);
+const saveX=()=>{try{localStorage.setItem(XKEY,JSON.stringify(X))}catch(e){}};
+const POOL=ALL_VARIANTS.flatMap((v,vi)=>v.questions.map((q,qi)=>({q,id:vi+'_'+qi})));
+const IDMAP=new Map(POOL.map(p=>[p.q,p.id]));
+const RANKS=[[0,'Жас шәкірт'],[200,'Сарбаз'],[600,'Батыр'],[1200,'Би'],[2200,'Хан'],[4000,'Ұлы Хан']];
+const mk=p=>({id:p.id,questionText:p.q[0],choices:shuffleArray(p.q[1].map((c,i)=>({text:c,isCorrect:i===p.q[2]}))),explanation:p.q[3]});
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const seeded=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+function rec(q,ok){
+  X.ans++;
+  if(ok){X.ok++;X.xp+=10;X.miss=X.miss.filter(i=>i!==q.id);}
+  else if(q.id&&!X.miss.includes(q.id))X.miss.push(q.id);
+  saveX();
+}
+function rankInfo(){
+  let i=0;RANKS.forEach((r,k)=>{if(X.xp>=r[0])i=k;});
+  const c=RANKS[i],n=RANKS[i+1];
+  return{name:c[1],next:n?n[0]:0,nn:n?n[1]:'',pct:n?Math.round((X.xp-c[0])/(n[0]-c[0])*100):100};
+}
+function startMode(mode){
+  playSound('click');
+  let list,title;
+  if(mode==='daily'){
+    const r=seeded(+today().replace(/-/g,''));
+    list=POOL.map(p=>[r(),p]).sort((a,b)=>a[0]-b[0]).slice(0,10).map(x=>x[1]);
+    title='📅 Күнделікті сынақ';
+  }else{
+    list=shuffleArray(POOL.filter(p=>X.miss.includes(p.id))).slice(0,20);
+    title='🧠 Қателермен жұмыс';
+    if(!list.length)return;
+  }
+  Object.assign(state,{view:'quiz',isExpress:true,title,mode,questions:list.map(mk),currentIndex:0,userAnswers:[],streak:0});
+  renderApp();window.scrollTo(0,0);
+}
+function afterQuiz(){
+  X.xp+=5;
+  if(state.mode==='daily'){
+    const t=today();
+    if(X.dLast!==t){X.dStreak=(X.dLast&&(new Date(t)-new Date(X.dLast))/864e5===1)?X.dStreak+1:1;X.dLast=t;X.xp+=30;}
+  }
+  saveX();
+}
+
+let B=null;const BT=15;
+function startBlitz(){
+  playSound('click');if(B){clearInterval(B.t);clearTimeout(B.nx);}
+  B={qs:shuffleArray(POOL).slice(0,20).map(mk),i:0,score:0,combo:0,maxCombo:0,ok:0,left:BT,sel:-1,done:false,fifty:1,plus:1,hide:[],log:[],gain:0};
+  state.view='blitz';renderApp();window.scrollTo(0,0);bTick();
+}
+function bTick(){
+  clearInterval(B.t);B.left=BT;
+  B.t=setInterval(()=>{
+    if(B.done)return;
+    B.left=Math.max(0,B.left-0.1);
+    const f=document.getElementById('bfill'),n=document.getElementById('bnum');
+    if(f)f.style.width=Math.min(100,B.left/BT*100)+'%';
+    if(n)n.textContent=Math.ceil(B.left);
+    if(B.left<=0)bAns(-1);
+  },100);
+}
+function bAns(i){
+  if(!B||state.view!=='blitz'||B.done||B.hide.includes(i))return;
+  const q=B.qs[B.i],ok=i>=0&&q.choices[i].isCorrect;
+  B.done=true;B.sel=i;clearInterval(B.t);B.gain=0;
+  if(ok){
+    B.combo++;B.maxCombo=Math.max(B.maxCombo,B.combo);B.ok++;
+    B.gain=100+Math.round(Math.min(B.left,BT)/BT*50)+(B.combo>=3?Math.min(B.combo,10)*10:0);
+    B.score+=B.gain;playSound('correct');
+  }else{B.combo=0;playSound('wrong');}
+  B.log.push({q,i,ok});rec(q,ok);
+  renderBlitz(document.getElementById('app'));
+  B.nx=setTimeout(bNext,ok?1400:3000);
+}
+function bNext(){
+  if(!B||state.view!=='blitz'||!B.done)return;
+  clearTimeout(B.nx);
+  if(B.i>=B.qs.length-1)return bEnd();
+  B.i++;B.done=false;B.sel=-1;B.hide=[];
+  renderBlitz(document.getElementById('app'));bTick();
+}
+function bFifty(){
+  if(B.done||!B.fifty)return;B.fifty=0;playSound('click');
+  const q=B.qs[B.i];
+  B.hide=shuffleArray(q.choices.map((c,i)=>i).filter(i=>!q.choices[i].isCorrect)).slice(0,2);
+  renderBlitz(document.getElementById('app'));
+}
+function bPlus(){
+  if(B.done||!B.plus)return;B.plus=0;B.left+=7;playSound('click');
+  renderBlitz(document.getElementById('app'));
+}
+function bEnd(){
+  clearInterval(B.t);clearTimeout(B.nx);
+  B.newRec=B.score>X.best;if(B.newRec)X.best=B.score;
+  X.top=[...X.top,{s:B.score,ok:B.ok,d:today()}].sort((a,b)=>b.s-a.s).slice(0,5);
+  X.xp+=Math.round(B.score/50);saveX();
+  state.view='blitzEnd';
+  if(B.ok>=15)playSound('win');
+  if(B.ok>=15||B.newRec)confettiBurst();
+  renderApp();window.scrollTo(0,0);
+}
+function renderBlitz(c){
+  const q=B.qs[B.i],n=B.qs.length,d=B.done;
+  const opts=q.choices.map((o,i)=>{
+    const h=B.hide.includes(i);
+    const cls=d?(o.isCorrect?'correct':(B.sel===i?'wrong':'dimmed')):(h?'dimmed':'');
+    return `<button class="option-btn-3d ${cls}" ${d||h?'disabled':''} onclick="bAns(${i})"><div class="opt-letter">${String.fromCharCode(65+i)}</div><div>${o.text}</div></button>`;
+  }).join('');
+  const note=d?`<div class="exp-note-3d ${B.gain?'':'bad'}"><strong>${B.gain?`✅ +${B.gain} ұпай`:(B.sel<0?'⏰ Уақыт бітті':'❌ Қате жауап')}</strong><div>${q.explanation}</div></div><div class="next-action"><button class="btn-3d" onclick="bNext()">${B.i>=n-1?'🏁 Нәтиже':'Келесі →'}</button></div>`:'';
+  c.innerHTML=`<div class="quiz-container">
+    <div class="quiz-header"><button class="btn-nav" onclick="goHome()">← Шығу</button><div class="streak-badge">⭐ ${B.score}</div>${B.combo>1?`<div class="streak-badge">🔥 x${B.combo}</div>`:''}<div style="font-weight:800;color:var(--sun-gold)">${B.i+1} / ${n}</div></div>
+    <div class="timer-track"><div class="timer-fill" id="bfill" style="width:${Math.min(100,B.left/BT*100)}%"></div></div>
+    <div class="qcard-3d"><div class="blitz-top"><span style="font-weight:700;color:var(--flag-blue)">⚡ Блиц</span><span class="timer-num" id="bnum">${Math.ceil(B.left)}</span></div>
+    <h2 class="question-text">${q.questionText}</h2><div class="options-grid">${opts}</div>
+    ${d?'':`<div class="lifelines"><button class="btn-nav" ${B.fifty?'':'disabled'} onclick="bFifty()">✂️ 50/50</button><button class="btn-nav" ${B.plus?'':'disabled'} onclick="bPlus()">⏱ +7 сек</button></div>`}${note}</div></div>`;
+}
+function renderBlitzEnd(c){
+  const n=B.qs.length,miss=B.log.filter(x=>!x.ok);
+  const v=B.ok>=18?'Тарихтың нағыз білгірісіз! 🏆':B.ok>=14?'Өте жақсы нәтиже! ✨':B.ok>=9?'Жаман емес, қателерді қайталаңыз 📚':'Тақырыптарды қайталап, қайта көріңіз 💪';
+  const top=X.top.map((t,k)=>`<div class="lb-row"><span>${['🥇','🥈','🥉','4.','5.'][k]}</span><b>${t.s} ұпай</b><span>${t.ok}/${n} • ${t.d}</span></div>`).join('');
+  const mh=miss.map(({q,i})=>`<div class="missed-item-3d"><div class="missed-q">${q.questionText}</div><div><span class="ans-pill mine">Сіздің жауабыңыз: ${i>=0?q.choices[i].text:'уақыт бітті'}</span><span class="ans-pill correct">Дұрыс жауап: ${q.choices.find(o=>o.isCorrect).text}</span></div><div class="missed-exp">💡 ${q.explanation}</div></div>`).join('');
+  c.innerHTML=`<div class="quiz-container"><div class="result-card-3d">
+    <div style="font-weight:700;color:var(--flag-blue);margin-bottom:12px">⚡ Блиц нәтижесі${B.newRec?' • 🎉 ЖАҢА РЕКОРД!':''}</div>
+    <div class="score-circle-3d"><div class="score-num" style="font-size:2.4rem">${B.score}</div><div class="score-total">ұпай</div></div>
+    <div class="verdict-text">${B.ok} / ${n} дұрыс • Ең ұзын серия: 🔥${B.maxCombo}<br>${v}</div>
+    <div class="lb">${top}</div>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap"><button class="btn-3d" onclick="startBlitz()">🔄 Қайта ойнау</button><button class="btn-3d btn-3d-secondary" onclick="goHome()">🏠 Басты бет</button></div></div>
+    ${miss.length?`<div class="missed-list"><h3 style="font-family:'Montserrat';font-size:1.3rem;margin-bottom:16px">Қателер (${miss.length}) — «Қателермен жұмыс» бөліміне қосылды:</h3>${mh}</div>`:''}</div>`;
+}
+document.addEventListener('keydown',e=>{
+  if(state.view!=='blitz'||!B)return;
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=4)bAns(n-1);
+  if(e.key==='Enter')bNext();
+});
+
+let F=null;
+function startCards(){playSound('click');F={l:shuffleArray(POOL).slice(0,20),i:0,f:false,k:0};state.view='cards';renderApp();window.scrollTo(0,0);}
+function cardFlip(){F.f=!F.f;playSound('click');renderApp();}
+function cardNext(ok){
+  const p=F.l[F.i];
+  if(ok)F.k++;else if(!X.miss.includes(p.id)){X.miss.push(p.id);saveX();}
+  F.i++;F.f=false;
+  if(F.i>=F.l.length){X.xp+=F.k*3;saveX();goHome();return;}
+  renderApp();
+}
+function renderCards(c){
+  const q=F.l[F.i].q;
+  c.innerHTML=`<div class="quiz-container"><div class="quiz-header"><button class="btn-nav" onclick="goHome()">← Артқа</button><div style="font-weight:800;color:var(--sun-gold)">🃏 ${F.i+1} / ${F.l.length}</div></div>
+  <div class="quiz-progress-track"><div class="quiz-progress-fill" style="width:${F.i/F.l.length*100}%"></div></div>
+  <div class="qcard-3d flash" onclick="cardFlip()">${F.f?`<div class="flash-lbl">✅ Жауап</div><h2 class="question-text">${q[1][q[2]]}</h2><div class="exp-note-3d">💡 ${q[3]}</div>`:`<div class="flash-lbl">❓ Сұрақ</div><h2 class="question-text">${q[0]}</h2><p style="color:var(--text-muted)">Жауабын көру үшін басыңыз</p>`}</div>
+  ${F.f?`<div class="next-action" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button class="btn-3d btn-3d-secondary" onclick="cardNext(false)">🔁 Қайталаймын</button><button class="btn-3d" onclick="cardNext(true)">✅ Білемін</button></div>`:''}</div>`;
+}
+
+function heroHtml(){
+  const r=rankInfo(),done=X.dLast===today();
+  const rays=Array.from({length:32},(_,i)=>{const a=i*Math.PI/16,r1=i%2?33:30,r2=i%2?42:46;return `<line x1="${(50+r1*Math.cos(a)).toFixed(1)}" y1="${(50+r1*Math.sin(a)).toFixed(1)}" x2="${(50+r2*Math.cos(a)).toFixed(1)}" y2="${(50+r2*Math.sin(a)).toFixed(1)}"/>`}).join('');
+  const modes=[
+    ['⚡','Блиц-ойын','20 кездейсоқ сұрақ • 15 сек • серия мен бонус','startBlitz()',X.best?`🏆 Рекорд: ${X.best}`:'Жаңа ойын',0],
+    ['📅','Күнделікті сынақ','Күн сайын 10 сұрақ, серияңызды үзбеңіз','startMode(\'daily\')',done?'Бүгін өтілді ✅':`🔥 Серия: ${X.dStreak} күн`,0],
+    ['🧠','Қателермен жұмыс','Қате жауаптарды қайта шығып, жою','startMode(\'miss\')',`Қателер саны: ${X.miss.length}`,!X.miss.length],
+    ['🃏','Жаттау карточкалары','Сұрақ → жауап → «Білемін / Қайталаймын»','startCards()','20 карточка',0],
+    ['🎯','Экспресс-тест','20 кездейсоқ сұрақ, түсініктемемен','startQuiz(0,true)','Уақыт шектеусіз',0],
+    ['📚','Барлық нұсқалар','Тақырыптар бойынша толық тесттер','document.getElementById(\'sec-variants\').scrollIntoView({behavior:\'smooth\'})',`${ALL_VARIANTS.length} нұсқа`,0]
+  ].map(m=>`<button class="mode-card" ${m[5]?'disabled':''} onclick="${m[3]}"><div class="mode-ic">${m[0]}</div><div><div class="mode-t">${m[1]}</div><div class="mode-d">${m[2]}</div><div class="mode-tag">${m[4]}</div></div></button>`).join('');
+  return `<section class="hero">
+    <svg class="hero-sun" viewBox="0 0 100 100"><g stroke="#FDB913" stroke-width="3" stroke-linecap="round">${rays}</g><circle cx="50" cy="50" r="24" fill="#FDB913"/></svg>
+    <div class="hero-badge-wrap">✨ ҰБТ • Қазақстан тарихы</div>
+    <h1 class="hero-title">Қазақстан тарихы ҰБТ</h1>
+    <p class="hero-subtitle">${ALL_VARIANTS.length} нұсқа, ${POOL.length} сұрақ. Блиц-ойын, күнделікті сынақ, қателермен жұмыс және жаттау карточкалары.</p>
+    <div class="hero-cta"><button class="btn-3d" onclick="startBlitz()">⚡ Блицті бастау</button><button class="btn-3d btn-3d-secondary" onclick="startMode('daily')">📅 Күнделікті сынақ</button></div>
+    <div class="xp-card"><div class="xp-row"><b>🏅 ${r.name}</b><span>${X.xp} XP${r.next?` • келесі: ${r.nn} (${r.next})`:''}</span></div><div class="xp-track"><div class="xp-fill" style="width:${r.pct}%"></div></div></div>
+  </section>
+  <section class="modes-grid">${modes}</section>`;
+}
+
+function renderApp() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  if (state.view === 'home') renderHome(app);
+  else if (state.view === 'quiz') renderQuiz(app);
+  else if (state.view === 'blitz') renderBlitz(app);
+  else if (state.view === 'blitzEnd') renderBlitzEnd(app);
+  else if (state.view === 'cards') renderCards(app);
+  else renderResult(app);
+}
+
+function renderHome(container) {
+  const keys = Object.keys(state.stats);
+  let doneCount = keys.length;
+  let totalScore = 0, totalPossible = 0;
+  keys.forEach(k => {
+    totalScore += state.stats[k].maxScore;
+    totalPossible += (state.stats[k].totalQ || 20);
+  });
+  const avgPct = totalPossible ? Math.round((totalScore / totalPossible) * 100) : 0;
+
+  const totalVariants = ALL_VARIANTS.length;
+  const totalSets = Math.ceil(totalVariants / PER_SET);
+
+  const tabsHtml = [0, ...Array.from({ length: totalSets }, (_, i) => i + 1)].map(n => `
+    <button class="tab-btn-3d ${state.selectedSet === n ? 'active' : ''}" onclick="filterSet(${n})">
+      ${n === 0 ? 'Барлығы' : `${n}-жинақ`}
+    </button>
+  `).join('');
+
+  const filtered = ALL_VARIANTS.map((v, idx) => ({ v, idx }))
+    .filter(({ idx }) => state.selectedSet === 0 || Math.floor(idx / PER_SET) + 1 === state.selectedSet);
+
+  const cardsHtml = filtered.map(({ v, idx }) => {
+    const st = state.stats[`v_${idx}`];
+    const totalQ = v.questions.length;
+    const maxS = st ? st.maxScore : 0;
+    const pct = st ? Math.round((maxS / totalQ) * 100) : 0;
+    const isPassed = st && pct >= 75;
+
+    return `
+      <li class="variant-card-3d" onclick="startQuiz(${idx})">
+        <div class="card-top">
+          <div class="badge-no-3d">${idx + 1}</div>
+          <div class="card-title-wrap">
+            <div class="card-topic">${topicOf(v.title)}</div>
+            <div class="card-meta">${totalQ} сұрақ • ҰБТ Базасы</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+          </div>
+          <div class="badge-status ${isPassed ? 'passed' : ''}">
+            ${st ? `${maxS} / ${totalQ}` : 'Бастау →'}
+          </div>
+        </div>
+      </li>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    ${heroHtml()}
+
+    <!-- Stats Summary Cards -->
+    <section class="stats-grid">
+      <div class="stat-card-3d">
+        <div class="stat-info">
+          <div class="lbl">Өтілген Нұсқалар</div>
+          <div class="val">${doneCount} / ${totalVariants}</div>
+        </div>
+        <div class="stat-icon">📊</div>
+      </div>
+      <div class="stat-card-3d">
+        <div class="stat-info">
+          <div class="lbl">Орташа Нәтиже</div>
+          <div class="val">${avgPct}%</div>
+        </div>
+        <div class="stat-icon">🎯</div>
+      </div>
+      <div class="stat-card-3d">
+        <div class="stat-info">
+          <div class="lbl">Жалпы База</div>
+          <div class="val">${POOL.length} сұрақ</div>
+        </div>
+        <div class="stat-icon">🇰🇿</div>
+      </div>
+    </section>
+
+    <!-- Variants Section -->
+    <section id="sec-variants">
+      <div class="sec-bar">
+        <h2 class="sec-title">Тест Нұсқасы</h2>
+        <div class="tabs-scroll">${tabsHtml}</div>
+      </div>
+      <ul class="variants-grid">${cardsHtml}</ul>
+    </section>
+  `;
+}
+
+function renderQuiz(container) {
+  const q = state.questions[state.currentIndex];
+  const total = state.questions.length;
+  const ans = state.userAnswers[state.currentIndex];
+  const isAnswered = ans !== undefined;
+  const isLast = state.currentIndex === total - 1;
+  const progressPct = ((state.currentIndex + (isAnswered ? 1 : 0)) / total) * 100;
+  
+  const title = state.title || (state.isExpress ? 'Кездейсоқ Экспресс-тест' : topicOf(ALL_VARIANTS[state.currentVariantIndex].title));
+
+  const optionsHtml = q.choices.map((c, i) => {
+    let cls = '';
+    if (isAnswered) {
+      if (c.isCorrect) cls = 'correct';
+      else if (ans.choiceIndex === i) cls = 'wrong';
+      else cls = 'dimmed';
+    }
+    return `
+      <button class="option-btn-3d ${cls}" ${isAnswered ? 'disabled' : ''} onclick="handleAnswer(${i})">
+        <div class="opt-letter">${String.fromCharCode(65 + i)}</div>
+        <div>${c.text}</div>
+      </button>
+    `;
+  }).join('');
+
+  const noteHtml = isAnswered ? `
+    <div class="exp-note-3d ${ans.isCorrect ? '' : 'bad'}">
+      <strong>${ans.isCorrect ? '✅ Дұрыс жауап!' : '❌ Қате жауап.'}</strong>
+      <div>${q.explanation}</div>
+    </div>
+  ` : '';
+
+  const streakHtml = state.streak > 1 ? `
+    <div class="streak-badge">🔥 Серия: ${state.streak}</div>
+  ` : '';
+
+  container.innerHTML = `
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <button class="btn-nav" onclick="goHome()">← Артқа қайту</button>
+        ${streakHtml}
+        <div style="font-weight: 800; color: var(--sun-gold);">${state.currentIndex + 1} / ${total}</div>
+      </div>
+      
+      <div class="quiz-progress-track">
+        <div class="quiz-progress-fill" style="width: ${progressPct}%;"></div>
+      </div>
+
+      <div class="qcard-3d">
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--flag-blue); margin-bottom: 8px;">${title}</div>
+        <h2 class="question-text">${q.questionText}</h2>
+        
+        <div class="options-grid">${optionsHtml}</div>
+        
+        ${noteHtml}
+
+        ${isAnswered ? `
+          <div class="next-action">
+            <button class="btn-3d" onclick="nextQuestion()">
+              ${isLast ? '🏁 Нәтижені Көру' : 'Келесі Сұрақ →'}
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderResult(container) {
+  const total = state.questions.length;
+  const score = state.userAnswers.filter(a => a && a.isCorrect).length;
+  const pct = Math.round((score / total) * 100);
+  const wrongList = state.questions.map((q, i) => ({ q, a: state.userAnswers[i] })).filter(x => x.a && !x.a.isCorrect);
+
+  let verdict = 'Тақырыпты қайталап шығу ұсынылады.';
+  if (pct >= 90) verdict = 'Керемет нәтиже! Тақырыпты үздік меңгергенсіз! 🏆';
+  else if (pct >= 75) verdict = 'Жақсы нәтиже! ҰБТ-ға дайындығыңыз жоғары! ✨';
+  else if (pct >= 50) verdict = 'Жаман емес, қателермен жұмыс жасаңыз! 📚';
+
+  const title = state.title || (state.isExpress ? 'Кездейсоқ Экспресс-тест' : topicOf(ALL_VARIANTS[state.currentVariantIndex].title));
+
+  const missedHtml = wrongList.map(({ q, a }, i) => {
+    const mine = q.choices[a.choiceIndex];
+    const right = q.choices.find(c => c.isCorrect);
+    return `
+      <div class="missed-item-3d">
+        <div class="missed-q">${i + 1}. ${q.questionText}</div>
+        <div>
+          <span class="ans-pill mine">Сіздің жауабыңыз: ${mine ? mine.text : 'белгіленбеді'}</span>
+          <span class="ans-pill correct">Дұрыс жауап: ${right.text}</span>
+        </div>
+        <div class="missed-exp">💡 ${q.explanation}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="quiz-container">
+      <div class="result-card-3d">
+        <div style="font-size: 0.9rem; font-weight: 700; color: var(--flag-blue); margin-bottom: 12px;">${title}</div>
+        <div class="score-circle-3d">
+          <div class="score-num">${score}</div>
+          <div class="score-total">/ ${total} дұрыс</div>
+        </div>
+        <div class="verdict-text">${pct}% — ${verdict}</div>
+        
+        <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn-3d" onclick="${state.mode ? `startMode('${state.mode}')` : `startQuiz(${state.currentVariantIndex}, ${state.isExpress})`}">
+            🔄 Қайта өту
+          </button>
+          <button class="btn-3d btn-3d-secondary" onclick="goHome()">
+            📋 Басты бетке қайту
+          </button>
+        </div>
+      </div>
+
+      ${wrongList.length > 0 ? `
+        <div class="missed-list">
+          <h3 style="font-family:'Montserrat'; font-size: 1.3rem; margin-bottom: 16px;">Қате жіберілген сұрақтар (${wrongList.length}):</h3>
+          ${missedHtml}
+        </div>
+      ` : '<div style="text-align:center; color: var(--correct-text); font-weight:800; font-size:1.2rem;">🎉 Барлық сұрақтарға қатесіз дұрыс жауап бердіңіз!</div>'}
+    </div>
+  `;
+}
+
+function toggleSearchModal() {
+  playSound('click');
+  const m = document.getElementById('search-modal');
+  m.hidden = !m.hidden;
+  if (!m.hidden) document.getElementById('search-input').focus();
+}
+
+function searchQuestions(val) {
+  const term = val.trim().toLowerCase();
+  const box = document.getElementById('search-results');
+  if (!term) {
+    box.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Мысалы: Ботай, Палеолит, Мезолит, Зайберт</p>';
+    return;
+  }
+
+  const all = ALL_VARIANTS.map(v => v.questions).flat();
+  const hits = all.filter(q => q[0].toLowerCase().includes(term) || q[3].toLowerCase().includes(term));
+
+  if (hits.length === 0) {
+    box.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Ештеңе табылмады. Басқа сөзбен іздеп көріңіз.</p>';
+    return;
+  }
+
+  const shown = hits.slice(0, 30);
+  box.innerHTML = shown.map(q => `
+    <div class="search-hit">
+      <div class="hit-q">${q[0]}</div>
+      <div class="hit-a">✅ Дұрыс жауап: ${q[1][q[2]]}</div>
+      <div class="hit-e">💡 ${q[3]}</div>
+    </div>
+  `).join('') + (hits.length > 30 ? `<p style="text-align:center; color:var(--text-muted); padding-top:10px;">Тағы ${hits.length - 30} сұрақ табылды...</p>` : '');
+}
+
+function confettiBurst() {
+  const canvas = document.getElementById('confetti');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  const colors = ['#FDB913', '#00A3E0', '#34D399', '#60A5FA', '#F472B6'];
+  const particles = Array.from({ length: 60 }, () => ({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    vx: (Math.random() - 0.5) * 14,
+    vy: (Math.random() - 0.7) * 14,
+    size: 6 + Math.random() * 6,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    life: 0
+  }));
+
+  function anim() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let active = false;
+    particles.forEach(p => {
+      p.life++;
+      p.vy += 0.3; p.x += p.vx; p.y += p.vy;
+      if (p.life < 60) {
+        active = true;
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 1 - p.life / 60;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      }
+    });
+    if (active) requestAnimationFrame(anim);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  requestAnimationFrame(anim);
+}
+</script>
+</body>
+</html>
